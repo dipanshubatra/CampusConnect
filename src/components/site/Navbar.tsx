@@ -1,38 +1,62 @@
-import { useEffect, useRef, useState, memo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { localizedPath } from "@/lib/i18n";
 
 import { ThemeToggle } from "../ThemeToggle";
 import { NavbarNotificationDropdown } from "./NavbarNotificationDropdown";
 import { UserAvatarWidget } from "./UserAvatarWidget";
 
 import { Menu, X } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-const links = [
-  { to: "/events", label: "Events" },
-  { to: "/clubs", label: "Clubs" },
-  { to: "/feed", label: "Feed" },
-  { to: "/challenge", label: "Challenge" },
-  { to: "/certificates", label: "Certificates" },
-  { to: "/dashboard", label: "Dashboard" },
-  { to: "/messages", label: "Messages" },
-] as const;
-const landingLinks = [
-  { href: "#features", label: "Features" },
-  { href: "#faq", label: "FAQ" },
-  { href: "#contact", label: "Contact" },
-] as const;
+import { useAuthHydration } from "@/hooks/useAuthHydration";
 
 export function Navbar() {
+  const { user } = useAuthHydration();
   const location = useLocation();
+  const { t, i18n } = useTranslation();
   const currentPath = location.pathname;
+
+  const links = [
+    {
+      to: localizedPath(i18n.language, "/events"),
+      label: t("navbar.events"),
+    },
+    {
+      to: localizedPath(i18n.language, "/clubs"),
+      label: t("navbar.clubs"),
+    },
+    {
+      to: localizedPath(i18n.language, "/feed"),
+      label: t("navbar.feed"),
+    },
+    {
+      to: localizedPath(i18n.language, "/directory"),
+      label: t("navbar.directory"),
+    },
+    {
+      to: localizedPath(i18n.language, "/challenge"),
+      label: t("navbar.challenge"),
+    },
+    {
+      to: localizedPath(i18n.language, "/certificates"),
+      label: t("navbar.certificates"),
+    },
+    {
+      to: localizedPath(i18n.language, "/dashboard"),
+      label: t("navbar.dashboard"),
+    },
+    {
+      to: localizedPath(i18n.language, "/messages"),
+      label: t("navbar.messages"),
+    },
+  ];
+
+  const landingLinks = [
+    { href: "#features", label: t("navbar.features") },
+    { href: "#faq", label: t("navbar.faq") },
+    { href: "#contact", label: t("navbar.contact") },
+  ];
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const hamburgerRef = useRef<HTMLButtonElement>(null);
@@ -98,7 +122,7 @@ export function Navbar() {
       <div className="mx-auto flex min-w-0 max-w-7xl items-center justify-between gap-2 px-2 py-3 sm:px-4 md:px-6">
         {/* Logo */}
         <Link
-          to="/"
+          to={localizedPath(i18n.language, "/")}
           className="min-w-0 flex-1 truncate font-display text-sm font-bold sm:flex-none sm:text-xl md:text-2xl navbar-logo"
         >
           <span style={{ letterSpacing: "0.04em" }}>CAMPUS</span>
@@ -144,7 +168,7 @@ export function Navbar() {
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <div className="flex items-center gap-1 sm:gap-2">
             <ThemeToggle />
-            <NavbarNotificationDropdown />
+            {user && <NavbarNotificationDropdown />}
             <UserAvatarWidget />
           </div>
 
