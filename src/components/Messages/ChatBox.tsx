@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { ShieldCheck, Send, Search, Lock, AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getBlockedUserIds, validateDirectMessageSend } from "@/lib/userBlockUtils";
 
 interface Profile {
   id: string;
@@ -142,6 +143,7 @@ export default function ChatBox() {
       if (initializingKeys || !currentUser) return;
       setLoadingProfiles(true);
       try {
+        const blockedIds = await getBlockedUserIds(currentUser.id);
         const { data, error } = await supabase
           .from("profiles")
           .select("id, full_name, avatar_url, college")
@@ -149,8 +151,9 @@ export default function ChatBox() {
           .order("full_name", { ascending: true });
 
         if (error) throw error;
-        setProfiles(data || []);
-        setFilteredProfiles(data || []);
+        const availableProfiles = (data || []).filter((p) => !blockedIds.has(p.id));
+        setProfiles(availableProfiles);
+        setFilteredProfiles(availableProfiles);
       } catch (err) {
         console.error("Failed to load profiles:", err);
         toast.error("Failed to load direct messaging contacts.");
@@ -309,17 +312,14 @@ export default function ChatBox() {
   useEffect(() => {
     if (!messages.length || !currentUser) return;
 
-    const hasUnread = messages.some(
-      (m) => m.receiver_id === currentUser.id && !m.read_at,
-    );
+    const hasUnread = messages.some((m) => m.receiver_id === currentUser.id && !m.read_at);
 
     if (!hasUnread) return;
 
     const container = messagesContainerRef.current;
     if (!container) return;
 
-    const isAtBottom =
-      container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+    const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
 
     if (isAtBottom) {
       markMessagesAsRead();
@@ -412,6 +412,13 @@ export default function ChatBox() {
     if (!inputMessage.trim() || !activeRecipient || !currentUser || !userKeys) return;
 
     try {
+      // Execute validation check: Throw 403 error if receiver blocked sender or sender blocked receiver
+      const validation = await validateDirectMessageSend(currentUser.id, activeRecipient.id);
+      if (!validation.allowed) {
+        toast.error(validation.error || "403 Forbidden: Direct messaging is blocked.");
+        return;
+      }
+
       const { data: keyData } = await supabase
         .from("user_public_keys")
         .select("public_key")
@@ -688,16 +695,37 @@ export default function ChatBox() {
                               <span className="flex items-center gap-0.5">
                                 {isMe ? (
                                   msg.read_at ? (
-                                    <span className="flex items-center gap-0.5 text-blue-600" title="Read">
+                                    <span
+                                      className="flex items-center gap-0.5 text-blue-600"
+                                      title="Read"
+                                    >
                                       <svg width="14" height="10" viewBox="0 0 14 10" fill="none">
-                                        <path d="M1 5.5L4 8.5L9 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M6 5.5L9 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path
+                                          d="M1 5.5L4 8.5L9 1"
+                                          stroke="currentColor"
+                                          strokeWidth="2"
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                        />
+                                        <path
+                                          d="M6 5.5L9 8.5L13 1"
+                                          stroke="currentColor"
+                                          strokeWidth="2"
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                        />
                                       </svg>
                                     </span>
                                   ) : (
                                     <span className="flex items-center gap-0.5" title="Sent">
                                       <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                                        <path d="M1 5L4 8L9 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path
+                                          d="M1 5L4 8L9 1"
+                                          stroke="currentColor"
+                                          strokeWidth="2"
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                        />
                                       </svg>
                                     </span>
                                   )

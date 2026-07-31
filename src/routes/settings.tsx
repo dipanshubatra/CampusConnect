@@ -19,6 +19,7 @@ import {
   type ProfileFormValues,
   type AvatarThemeId,
 } from "@/lib/schemas";
+import { BlockedUsersPanel } from "@/components/Settings/BlockedUsersPanel";
 import {
   Form,
   FormField,
@@ -624,6 +625,10 @@ function SettingsPageContent({ user }: WithAuthProps) {
                 Reset
               </button>
             </div>
+          </Panel>
+
+          <Panel title="Blocked Users">
+            <BlockedUsersPanel currentUserId={user.id} />
           </Panel>
 
           <Panel title="Notifications">
