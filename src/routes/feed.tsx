@@ -52,6 +52,7 @@ import {
   buildCommentTree,
   computeReaction,
 } from "@/lib/feedUtils";
+import { getBlockedUserIds, blockUser, filterBlockedContent } from "@/lib/userBlockUtils";
 import { useActionQueue } from "@/store/actionQueue";
 import { type CommentNode } from "@/lib/feedUtils";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -317,7 +318,17 @@ export default function Feed() {
   const trendingPosts: Post[] = trendingData ?? [];
   const activePosts = feedMode === "latest" ? posts : trendingPosts;
 
-  const filteredPosts = filterPostsBySearch(activePosts, searchQuery);
+  const { data: blockedUserIds = new Set<string>() } = useQuery({
+    queryKey: ["blockedUserIds", user?.id],
+    queryFn: async () => {
+      if (!user) return new Set<string>();
+      return await getBlockedUserIds(user.id);
+    },
+    enabled: !!user?.id,
+  });
+
+  const nonBlockedPosts = filterBlockedContent(activePosts, blockedUserIds);
+  const filteredPosts = filterPostsBySearch(nonBlockedPosts, searchQuery);
 
   const isActiveFeedLoading = feedMode === "latest" ? isLoading : isTrendingLoading;
 
@@ -430,7 +441,11 @@ export default function Feed() {
         .order("created_at", { ascending: true });
 
       if (!error && data) {
-        setLazyComments((prev) => ({ ...prev, [postId]: data as unknown as Comment[] }));
+        const nonBlockedComments = filterBlockedContent(
+          data as unknown as Comment[],
+          blockedUserIds,
+        );
+        setLazyComments((prev) => ({ ...prev, [postId]: nonBlockedComments }));
       }
       setLoadingCommentPostIds((prev) => {
         const next = new Set(prev);
@@ -438,7 +453,7 @@ export default function Feed() {
         return next;
       });
     },
-    [supabase],
+    [supabase, blockedUserIds],
   );
 
   const toggleComments = useCallback(
