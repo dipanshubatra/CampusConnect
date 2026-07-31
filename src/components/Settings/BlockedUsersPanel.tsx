@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { ShieldAlert, UserX, Unlock, Search, Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -23,7 +23,7 @@ interface BlockedUsersPanelProps {
 }
 
 export function BlockedUsersPanel({ currentUserId }: BlockedUsersPanelProps) {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterQuery, setFilterQuery] = useState("");
@@ -37,7 +37,6 @@ export function BlockedUsersPanel({ currentUserId }: BlockedUsersPanelProps) {
 
   const fetchBlockedList = useCallback(async () => {
     if (!currentUserId) return;
-    setLoading(true);
     try {
       const list = await getBlockedUsersList(currentUserId);
       setBlockedUsers(list);
