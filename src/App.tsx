@@ -170,6 +170,7 @@ const CampusWellnessHub = lazy(() => import("./pages/wellness/CampusWellnessHub"
 const ReferralDashboardRoute = lazy(() => import("./pages/ReferralDashboard"));
 const ReferralLeaderboardRoute = lazy(() => import("./pages/ReferralLeaderboard"));
 const AudioTourRoute = lazy(() => import("./routes/audio-tour"));
+const HelpCenter = lazy(() => import("./components/HelpCenter"));
 const DynamicEarlyBirdAnalyticsRoute = lazy(() => import("./routes/events.$id.early-bird-analytics"));
 
 // ---------------------------------------------------------------------------
@@ -215,6 +216,7 @@ const router = createBrowserRouter(
               <Route path="/certificates" element={<Certificates />} />
               <Route path="/verify" element={<VerifyCertificate />} />
               <Route path="/audio-tour" element={<AudioTourRoute />} />
+              <Route path="/help" element={<HelpCenter />} />
               <Route path="/clubs" element={<ClubsLayout />}>
                 <Route index element={<ClubsIndex />} />
                 <Route path="fit" element={<ClubDiscoveryQuiz />} />

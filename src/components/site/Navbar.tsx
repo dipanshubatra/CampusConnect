@@ -282,6 +282,11 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link to="/settings">Settings</Link>
                 </DropdownMenuItem>
+
+                {/* Help Center */}
+                <DropdownMenuItem asChild>
+                  <Link to="/help">Help Center</Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
 
                 {/* Sign Out */}
