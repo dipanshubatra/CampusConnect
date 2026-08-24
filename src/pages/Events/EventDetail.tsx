@@ -22,6 +22,7 @@ import { HelpQueueAttendeeWidget } from "@/components/events/HelpQueueAttendeeWi
 import { DietaryForecastPanel } from "@/components/events/DietaryForecastPanel";
 import { User } from "@supabase/supabase-js";
 import { SponsorBountiesSection } from "@/components/events/SponsorBountiesSection";
+import { ReactionSummaryCard } from "@/components/meeting-room/ReactionSummaryCard";
 
 // NEW (Issue #4301): Itinerary Builder Imports
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
@@ -323,6 +324,16 @@ export default function EventDetail() {
         )}
 
         {event.id && <SponsorBountiesSection eventId={event.id} />}
+
+        {/* Issue #1993: Reaction Summary Card for completed/live meetings */}
+        {event.id && (
+          <div className="pt-6">
+            <ReactionSummaryCard
+              eventId={event.id}
+              isLive={false}
+            />
+          </div>
+        )}
       </div>
 
       {user && event.id && <LiveTaskAttendeePopup eventId={event.id} userId={user.id} />}
