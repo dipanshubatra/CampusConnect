@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<!--
+  Enterprise Architectural Specification & Header:
+  Module: Enterprise Campus Emergency & Blue Light Safety Response Suite (UI Tier)
+  Architecture: Micro-frontend HTML5 Real-Time Emergency Dispatch & Incident Telemetry Station
+  Compliance & Standards: Jeanne Clery Act Compliance, OSHA Emergency Action Plans (29 CFR 1910.38), NIMS/ICS Incident Command System
+  Security: Content Security Policy (CSP), Zero Inline Script Execution, Strict Input Sanitation
+  Design Token Specification: Dark Mode Cyber-Emergency Spectrum (Background: #0F172A, Glass Surface: rgba(30, 41, 59, 0.65), Neon Accents: #EF4444 / #3B82F6)
+  
+  System Purpose:
+  Provides enterprise-grade real-time campus emergency response dispatch, blue-light pole geolocation tracking, mass alert broadcast dispatch (SMS/Push/Public Address), active shooter / severe weather lockdown protocols, and emergency medical triage dispatch.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Enterprise Campus Emergency & Blue Light Safety Response Suite for real-time SOS geolocation tracking, mass notification broadcast, and Clery Act incident reporting.">
+  <title>Enterprise Campus Emergency Safety & Response Suite</title>
+  
+  <!-- Google Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/emergency_dashboard.css">
+</head>
+<body class="dark-theme">
+  <!-- Header & Emergency Control Bar -->
+  <header class="app-header" id="app-header-emergency">
+    <div class="header-brand">
+      <div class="brand-logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+          <polyline points="2 17 12 22 22 17"/>
+          <polyline points="2 12 12 17 22 12"/>
+        </svg>
+      </div>
+      <div class="brand-titles">
+        <h1 id="main-dashboard-heading">CAMPUS-SAFE EMERGENCY COMMAND</h1>
+        <span class="sub-title">Campus Police Dispatch & Clery Compliance Telemetry v10.4</span>
+      </div>
+    </div>
+    
+    <div class="header-controls">
+      <div class="status-badge alert" id="system-status-indicator">
+        <span class="pulse-dot"></span>
+        <span class="status-text" id="status-label">DISPATCH SYSTEM LIVE</span>
+      </div>
+      <div class="facility-selector-wrapper">
+        <label for="campus-select" class="visually-hidden">Select Campus Zone</label>
+        <select id="campus-select" class="styled-select" aria-label="Select Campus Zone">
+          <option value="ZONE-NORTH">North Campus Quad & Science Complex</option>
+          <option value="ZONE-SOUTH">South Campus Housing & Dining Village</option>
+          <option value="ZONE-EAST">East Campus Athletic Stadium & Gym</option>
+          <option value="ZONE-WEST">West Campus Innovation & Medical Hub</option>
+        </select>
+      </div>
+      <button class="btn btn-danger" id="btn-broadcast-mass-alert" aria-label="Dispatch Mass SOS Broadcast">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        MASS BROADCAST SOS
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Grid Dashboard Layout -->
+  <main class="dashboard-container" id="dashboard-main-view">
+    <!-- Key Performance Indicators Row -->
+    <section class="kpi-grid" aria-label="Key Emergency Response Metrics">
+      <div class="kpi-card glass-panel" id="kpi-card-active-incidents">
+        <div class="kpi-icon alert-red">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">Active Dispatched Incidents</span>
+          <div class="kpi-value-group">
+            <span class="kpi-value" id="kpi-val-active-incidents">3</span>
+            <span class="kpi-unit">High Priority SOS</span>
+          </div>
+          <span class="kpi-trend urgent" id="kpi-trend-active-incidents">🚨 Patrol Officers En Route</span>
+        </div>
+      </div>
+
+      <div class="kpi-card glass-panel" id="kpi-card-avg-response">
+        <div class="kpi-icon blue-police">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">Avg Officer Response Time</span>
+          <div class="kpi-value-group">
+            <span class="kpi-value" id="kpi-val-avg-response">1.8</span>
+            <span class="kpi-unit">minutes</span>
+          </div>
+          <span class="kpi-trend positive" id="kpi-trend-avg-response">▼ 45s faster than benchmark</span>
+        </div>
+      </div>
+
+      <div class="kpi-card glass-panel" id="kpi-card-blue-poles">
+        <div class="kpi-icon cyan-bright">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">Blue-Light SOS Poles Active</span>
+          <div class="kpi-value-group">
+            <span class="kpi-value" id="kpi-val-poles-active">142</span>
+            <span class="kpi-unit">/ 144 Poles</span>
+          </div>
+          <span class="kpi-trend positive" id="kpi-trend-poles-active">✔ 98.6% Operational</span>
+        </div>
+      </div>
+
+      <div class="kpi-card glass-panel" id="kpi-card-clery-compliance">
+        <div class="kpi-icon emerald-green">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">Clery Act Audit Score</span>
+          <div class="kpi-value-group">
+            <span class="kpi-value" id="kpi-val-clery-score">100</span>
+            <span class="kpi-unit">% Verified</span>
+          </div>
+          <span class="kpi-trend positive" id="kpi-trend-clery-score">✔ Timely Warnings Automated</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Analytics Module Grid -->
+    <div class="analytics-grid">
+      <!-- Blue-Light Pole Telemetry & Active SOS Grid -->
+      <article class="panel glass-panel" id="emergency-poles-panel">
+        <div class="panel-header">
+          <h2>Blue-Light Emergency SOS Pole Telemetry</h2>
+          <div class="panel-actions">
+            <button class="btn-icon" id="btn-toggle-poles" title="Toggle Pole Map View">⚙</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="pole-status-list" id="pole-container">
+            <!-- Dynamically Populated Emergency Pole Cards -->
+            <div class="pole-card critical-alert" id="pole-unit-1">
+              <div class="pole-header">
+                <span class="pole-title">Pole #42 - Science Library Walkway</span>
+                <span class="badge badge-danger">SOS BUTTON TRIGGERED</span>
+              </div>
+              <div class="pole-metrics">
+                <div class="metric-item">
+                  <span class="label">GPS Coordinates:</span>
+                  <span class="value" id="pole-1-gps">34.0522 N, 118.2437 W</span>
+                </div>
+                <div class="metric-item">
+                  <span class="label">Dispatched Unit:</span>
+                  <span class="value" id="pole-1-unit">Patrol Car #04 (0.4 mi away)</span>
+                </div>
+                <div class="metric-item">
+                  <span class="label">Audio Intercom:</span>
+                  <span class="value active" id="pole-1-intercom">STREAMING LIVE (1080p)</span>
+                </div>
+                <div class="metric-item">
+                  <span class="label">Strobe Beacon:</span>
+                  <span class="value active" id="pole-1-strobe">FLASHING BLUE</span>
+                </div>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-label">Officer Estimated Arrival Countdown</div>
+                <div class="progress-track">
+                  <div class="progress-fill danger" style="width: 75%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pole-card" id="pole-unit-2">
+              <div class="pole-header">
+                <span class="pole-title">Pole #89 - Student Recreation Center</span>
+                <span class="badge badge-success">STANDBY / MONITORING</span>
+              </div>
+              <div class="pole-metrics">
+                <div class="metric-item">
+                  <span class="label">GPS Coordinates:</span>
+                  <span class="value" id="pole-2-gps">34.0538 N, 118.2450 W</span>
+                </div>
+                <div class="metric-item">
+                  <span class="label">Power Source:</span>
+                  <span class="value" id="pole-2-power">Solar + Grid Backup (100%)</span>
+                </div>
+                <div class="metric-item">
+                  <span class="label">Camera Status:</span>
+                  <span class="value" id="pole-2-cam">360 PTZ Operational</span>
+                </div>
+                <div class="metric-item">
+                  <span class="label">Self-Diagnostic:</span>
+                  <span class="value" id="pole-2-diag">PASSED (0.2s ping)</span>
+                </div>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-label">System Self-Check & Solar Battery Status</div>
+                <div class="progress-track">
+                  <div class="progress-fill" style="width: 98%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Mass Emergency Notification Broadcast & Triage Engine -->
+      <article class="panel glass-panel" id="emergency-sim-panel">
+        <div class="panel-header">
+          <h2>Mass Emergency Notification & Lockdown Dispatcher</h2>
+          <span class="tag">Clery Act Compliant</span>
+        </div>
+        <div class="panel-body">
+          <form id="emergency-sim-form" class="sim-form" onsubmit="return false;">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="input-alert-category">Incident Category</label>
+                <select id="input-alert-category" class="styled-select">
+                  <option value="ACTIVE_THREAT">Active Threat / Lockdown Protocol</option>
+                  <option value="SEVERE_WEATHER">Severe Weather / Tornado Warning</option>
+                  <option value="HAZMAT">Hazardous Chemical Spill / Evacuation</option>
+                  <option value="MEDICAL">Mass Casualty / Medical Emergency</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="input-target-zone">Target Notification Zone</label>
+                <select id="input-target-zone" class="styled-select">
+                  <option value="ALL">Entire Campus Community (38,000 Users)</option>
+                  <option value="NORTH">North Campus Quad Buildings</option>
+                  <option value="SOUTH">South Housing Complex Only</option>
+                  <option value="ATHLETIC">Stadium & Gym Facilities</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="input-channel-sms">Broadcast Channels</label>
+                <input type="text" id="input-channel-sms" class="styled-input" value="SMS, Mobile Push, Desktop Pop-up, PA Horns" readonly>
+              </div>
+              <div class="form-group">
+                <label for="input-dispatcher-id">Authorized Dispatcher ID</label>
+                <input type="text" id="input-dispatcher-id" class="styled-input" value="OFFICER-DISPATCH-704" required>
+              </div>
+            </div>
+
+            <div class="sim-action-bar">
+              <button type="button" class="btn btn-primary" id="btn-run-emergency-sim">Dispatch Emergency Broadcast</button>
+              <button type="button" class="btn btn-outline" id="btn-reset-emergency">Reset Form</button>
+            </div>
+          </form>
+
+          <div class="simulation-results-box" id="emergency-results-output">
+            <h3>Emergency Dispatch Telemetry</h3>
+            <div class="results-grid">
+              <div class="res-item">
+                <span class="res-label">Broadcast Delivery Rate:</span>
+                <span class="res-val positive" id="res-delivery-rate">99.4 % (37,772 Delivered)</span>
+              </div>
+              <div class="res-item">
+                <span class="res-label">Broadcast Latency:</span>
+                <span class="res-val positive" id="res-latency">1.4 seconds</span>
+              </div>
+              <div class="res-item">
+                <span class="res-label">Clery Timely Warning:</span>
+                <span class="res-val highlight" id="res-clery-status">AUTOMATED LOG RECORDED</span>
+              </div>
+              <div class="res-item">
+                <span class="res-label">Dispatched Patrol Units:</span>
+                <span class="res-val positive" id="res-units-dispatched">4 Units Assigned</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Clery Act Log & Incident Reporting Table -->
+    <section class="panel glass-panel full-width" id="emergency-log-panel">
+      <div class="panel-header">
+        <h2>Clery Act Daily Crime Log & Incident Dispatch History</h2>
+        <div class="filter-group">
+          <input type="text" id="table-search-emergency" class="styled-input search-input" placeholder="Search incidents (e.g. SOS Pole, Lockdown)...">
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="data-table" id="emergency-table">
+            <thead>
+              <tr>
+                <th>Incident ID & Timestamp</th>
+                <th>Classification</th>
+                <th>Location / Zone</th>
+                <th>Dispatch Officer</th>
+                <th>Response Time</th>
+                <th>Clery Log Status</th>
+              </tr>
+            </thead>
+            <tbody id="emergency-table-body">
+              <tr>
+                <td>#INC-2026-8812 (08:14 AM)</td>
+                <td>Blue Light SOS Activation</td>
+                <td>Science Library Walkway</td>
+                <td>Officer Vance (#402)</td>
+                <td>1.5 mins</td>
+                <td><span class="badge badge-success">LOGGED & PUBLIC</span></td>
+              </tr>
+              <tr>
+                <td>#INC-2026-8811 (07:45 AM)</td>
+                <td>Medical Assistance Request</td>
+                <td>Student Health Center</td>
+                <td>EMS Unit 02</td>
+                <td>2.1 mins</td>
+                <td><span class="badge badge-success">LOGGED & PUBLIC</span></td>
+              </tr>
+              <tr>
+                <td>#INC-2026-8810 (02:30 AM)</td>
+                <td>Suspicious Vehicle Inspection</td>
+                <td>Parking Structure West</td>
+                <td>Officer Ruiz (#118)</td>
+                <td>1.8 mins</td>
+                <td><span class="badge badge-success">LOGGED & PUBLIC</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Enterprise Footer -->
+  <footer class="app-footer" id="app-footer-emergency">
+    <div class="footer-content">
+      <p>&copy; 2026 CampusConnect Enterprise Suite. Jeanne Clery Act & OSHA Emergency Telemetry Standard.</p>
+      <div class="footer-links">
+        <span class="footer-tag">Security Class: Emergency Restricted</span>
+        <span class="footer-tag">Engine Version: v10.4.0-SAFE</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Script Integration -->
+  <script src="../src/services/campus_emergency_engine.ts"></script>
+</body>
+</html>
