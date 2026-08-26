@@ -155,6 +155,7 @@ const AdminLeadershipApprovals = lazy(() => import("./routes/admin.leadership-ap
 const MfaChallenge = lazy(() => import("./routes/mfa-challenge"));
 const ComplianceCheck = lazy(() => import("./routes/compliance-check"));
 const VolunteerRecord = lazy(() => import("./routes/volunteer-record"));
+const RemindersPage = lazy(() => import("@/pages/RemindersPage"));
 const FacilityDashboard = lazy(() => import("./routes/facility-dashboard"));
 const ApiPlayground = lazy(() => import("./routes/api-playground"));
 
@@ -356,6 +357,7 @@ const router = createBrowserRouter(
                   <Route path="/settings/data" element={<SettingsData />} />
                   <Route path="/recap" element={<Recap />} />
                   <Route path="/volunteer-record" element={<VolunteerRecord />} />
+                  <Route path="/reminders" element={<RemindersPage />} />
                   <Route path="/network" element={<NetworkPage />} />
                   <Route path="/admin/clubs/pending" element={<PendingClubsAdmin />} />
                   <Route path="/admin/analytics" element={<AnalyticsAdmin />} />
