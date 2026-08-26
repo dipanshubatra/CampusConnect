@@ -182,7 +182,7 @@ const AudioTourRoute = lazy(() => import("./routes/audio-tour"));
 const DynamicEarlyBirdAnalyticsRoute = lazy(
   () => import("./routes/events.$id.early-bird-analytics"),
 );
-const SuggestionBoardPage = lazy(() => import("@/pages/SuggestionBoardPage"));
+const AchievementsPage = lazy(() => import("@/pages/AchievementsPage"));
 const EventFeedbackPage = lazy(() => import("@/pages/EventFeedbackPage"));
 
 // ---------------------------------------------------------------------------
@@ -342,7 +342,7 @@ function AnimatedOutlet() {
 //                 <Route path="/admin/emergency-broadcast" element={<AdminEmergencyBroadcast />} />
 //                 <Route path="/admin/badges" element={<AdminBadgesPage />} />
 //                 <Route path="/unsubscribe" element={<UnsubscribeRoute />} />
-                  <Route path="/suggestions" element={<SuggestionBoardPage />} />
+                  <Route path="/achievements" element={<AchievementsPage />} />
                   <Route path="/events/:eventId/reviews" element={<EventFeedbackPage />} />
 //                 <Route path="*" element={<NotFound />} />
 //               </Route>
@@ -561,8 +561,8 @@ const router = createBrowserRouter(
             {/* Wellness */}
             <Route path="/wellness" element={<CampusWellnessHub />} />
 
-            {/* Event Suggestions */}
-            <Route path="/suggestions" element={<SuggestionBoardPage />} />
+            {/* Achievements */}
+            <Route path="/achievements" element={<AchievementsPage />} />
 
             {/* Event Feedback / Reviews */}
             <Route path="/events/:eventId/reviews" element={<EventFeedbackPage />} />
